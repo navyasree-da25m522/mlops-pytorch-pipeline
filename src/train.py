@@ -78,9 +78,12 @@ def evaluate( model: nn.Module, loader: torch.utils.data.DataLoader, criterion: 
 
 def main():
 
-    config_path = Path("/app/configs/training_config.yaml")
-    if not config_path.exists():
-        config_path = Path("configs/training_config.yaml")
+    config_path = Path(
+    os.getenv(
+        "CONFIG_PATH",
+        "configs/training_config.yaml",
+    )
+)
 
     config = load_config(str(config_path))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
