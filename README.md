@@ -18,39 +18,48 @@ The model is trained for **10 epochs** with early stopping configured.
 
 ---
 
+
 ## 2. Architecture
 
-```mermaid
-flowchart TD
-    A[CIFAR-10 Dataset] --> B[PyTorch Training]
-    B --> C[ResNet18]
-    C --> D[classifier_v1.pt]
+```text
+                    CIFAR-10 Dataset
+                           |
+                           v
+                   PyTorch Training
+                           |
+                           v
+                       ResNet18
+                           |
+                           v
+                   classifier_v1.pt
+                           |
+                           v
+              Model Checkpoint PVC
+                           |
+                           v
+              Model Serving Deployment
+                    (2 Replicas)
+                           |
+                           v
+                    FastAPI Server
+                  /health    /predict
+                           |
+                           v
+                  ClusterIP Service
+                     Port 80 -> 8080
+                           |
+                           v
+                        Client
 
-    subgraph Kubernetes
-        E[ConfigMap<br/>training-config]
-        F[Training Job]
-        G[Data PVC<br/>cifar10-data-pvc]
-        H[Checkpoint PVC<br/>model-checkpoints-pvc]
-
-        F --> E
-        F --> G
-        F --> H
-
-        I[Serving Deployment<br/>2 Replicas]
-        J[FastAPI<br/>/health and /predict]
-        K[ClusterIP Service<br/>80 → 8080]
-        L[HPA<br/>2–4 Replicas<br/>60% CPU]
-
-        H --> I
-        I --> J
-        K --> I
-        L --> I
-    end
-
-    D --> H
-    M[Client] -->|POST /predict| K
-    ```
-
+Kubernetes components:
+    ConfigMap -> Training configuration
+    Data PVC -> CIFAR-10 dataset
+    Checkpoint PVC -> Trained model
+    Training Job -> Model training
+    Deployment -> Model serving
+    Service -> Internal API access
+    HPA -> 2 to 4 replicas, 60% CPU target
+---
 ## 3. Project Structure
 mlops-pytorch-pipeline/
 │
@@ -81,7 +90,7 @@ mlops-pytorch-pipeline/
 │   └── serve.py
 │
 └── README.md
-
+---
 ##4. Model Configuration
 
 Dataset:	CIFAR-10
@@ -121,7 +130,7 @@ HPA: model-serving-hpa
 Minimum replicas: 2
 Maximum replicas: 4
 CPU target: 60%
-
+---
 ##6. Kubernetes Setup Instructions
 
 1. Create Namespace: kubectl apply -f k8s/namespace.yaml
@@ -129,34 +138,34 @@ CPU target: 60%
 3. Create Persistent Storage: kubectl apply -f k8s/persistent-volumes.yaml
 4. Start Training: kubectl apply -f k8s/training-job.yaml
 
-
+---
 
 ##7. Deploy Model Serving
 kubectl apply -f k8s/serving-deployment.yaml
 kubectl apply -f k8s/serving-service.yaml
 kubectl apply -f k8s/hpa.yaml
-
+---
 ##8. Verify Deployment
 kubectl get pods -n ml-training
 kubectl describe deployment model-serving -n ml-training
-
+---
 ##9. Verify Service
 kubectl get service,endpoints -n ml-training
-
+---
 ##10. Verify HPA
 kubectl get hpa -n ml-training
-
+---
 ##11. API Testing
 Port Forward: kubectl port-forward svc/model-serving 8080:80 -n ml-training
 Health Check: curl http://localhost:8080/health
 
-
+---
 ##12. API Endpoints
 Method	   Endpoint	     Purpose
 GET	        /health	     Health check
 POST	    /predict	 CIFAR-10 image prediction
 
-
+---
 ##13. Technologies
 Python
 PyTorch
