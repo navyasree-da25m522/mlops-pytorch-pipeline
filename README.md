@@ -48,8 +48,8 @@ flowchart TD
     end
 
     D --> H
-    ```text
     M[Client] -->|POST /predict| K
+    ```
 
 ## 3. Project Structure
 mlops-pytorch-pipeline/
