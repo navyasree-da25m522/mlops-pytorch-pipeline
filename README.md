@@ -59,7 +59,7 @@ Kubernetes components:
     Deployment -> Model serving
     Service -> Internal API access
     HPA -> 2 to 4 replicas, 60% CPU target
----
+
 ## 3. Project Structure
 mlops-pytorch-pipeline/
 │
@@ -90,8 +90,8 @@ mlops-pytorch-pipeline/
 │   └── serve.py
 │
 └── README.md
----
-##4. Model Configuration
+
+## 4. Model Configuration
 
 Dataset:	CIFAR-10
 Architecture:	ResNet18
@@ -102,7 +102,7 @@ Learning rate:	0.001
 Early stopping patience:3
 Model: classifier_v1.pt
 
-##5. Kubernetes Setup
+## 5. Kubernetes Setup
 Namespace
 ml-training
 Persistent Storage
@@ -130,8 +130,8 @@ HPA: model-serving-hpa
 Minimum replicas: 2
 Maximum replicas: 4
 CPU target: 60%
----
-##6. Kubernetes Setup Instructions
+
+## 6. Kubernetes Setup Instructions
 
 1. Create Namespace: kubectl apply -f k8s/namespace.yaml
 2. Create ConfigMap: kubectl apply -f k8s/configmap.yaml
@@ -140,33 +140,33 @@ CPU target: 60%
 
 ---
 
-##7. Deploy Model Serving
+## 7. Deploy Model Serving
 kubectl apply -f k8s/serving-deployment.yaml
 kubectl apply -f k8s/serving-service.yaml
 kubectl apply -f k8s/hpa.yaml
 ---
-##8. Verify Deployment
+## 8. Verify Deployment
 kubectl get pods -n ml-training
 kubectl describe deployment model-serving -n ml-training
 ---
-##9. Verify Service
+## 9. Verify Service
 kubectl get service,endpoints -n ml-training
 ---
-##10. Verify HPA
+## 10. Verify HPA
 kubectl get hpa -n ml-training
 ---
-##11. API Testing
+## 11. API Testing
 Port Forward: kubectl port-forward svc/model-serving 8080:80 -n ml-training
 Health Check: curl http://localhost:8080/health
 
 ---
-##12. API Endpoints
+## 12. API Endpoints
 Method	   Endpoint	     Purpose
 GET	        /health	     Health check
 POST	    /predict	 CIFAR-10 image prediction
 
----
-##13. Technologies
+
+## 13. Technologies
 Python
 PyTorch
 ResNet18
